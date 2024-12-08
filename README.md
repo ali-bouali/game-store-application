@@ -1,2 +1,2 @@
-This a bisic readme file.
+This a basic readme file.
 We will update it later
