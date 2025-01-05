@@ -1,6 +1,8 @@
 package com.alibou.store.game;
 
 import com.alibou.store.category.Category;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +26,9 @@ public interface GameRepository extends JpaRepository<Game, String> {
         where c.name = 'Action'
      */
     List<Game> findAllByCategoryName(String categoryName);
+
+
+    Page<Game> findAllByCategoryName(String categoryName, Pageable pageable);
 
 
     // JPQL
