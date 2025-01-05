@@ -9,7 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -127,6 +129,53 @@ public class GameService {
     2- String matching only includes exact, case-sensitive, starts, ends, contains and regex
     3- All types other than String are exact-match only
      */
+
+
+    public void specificationExample1() {
+
+        Specification<Game> spec = buildSpecificationWithAndOperator("witcher", SupportedPlatforms.PC);
+        List<Game> games = gameRepository.findAll(spec);
+
+    }
+
+    public void specificationExample2() {
+
+        Specification<Game> spec = buildSpecificationWithOrOperator("witcher", SupportedPlatforms.PC);
+        List<Game> games = gameRepository.findAll(spec);
+
+    }
+
+    private Specification<Game> buildSpecificationWithOrOperator(String title, SupportedPlatforms platform) {
+        Specification<Game> spec = Specification.where(null);
+
+        if (StringUtils.hasLength(title)) {
+            spec = spec.and(GameSpecifications.byGameTitle(title));
+
+        }
+        if (platform != null) {
+           spec = spec.or(GameSpecifications.bySupportedPlatform(platform));
+
+        }
+
+
+        return spec;
+    }
+
+    private Specification<Game> buildSpecificationWithAndOperator(String title, SupportedPlatforms platform) {
+        Specification<Game> spec = Specification.where(null);
+
+        if (StringUtils.hasLength(title)) {
+            spec = spec.and(GameSpecifications.byGameTitle(title));
+
+        }
+        if (platform != null) {
+           spec = spec.and(GameSpecifications.bySupportedPlatform(platform));
+
+        }
+
+
+        return spec;
+    }
 
 
 }
