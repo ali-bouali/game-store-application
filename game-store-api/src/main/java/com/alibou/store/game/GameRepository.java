@@ -51,4 +51,18 @@ public interface GameRepository extends JpaRepository<Game, String>, JpaSpecific
             """)
     @Modifying
     void transformGamesTitleToUpperCase();
+
+    @Query("""
+            select g.id as gameId,
+                   g.title AS gameTitle
+            from Game g
+            """)
+    List<GameRepresentation1> findAllGames();
+
+    @Query("""
+            select g.title AS gameTitle,
+                   g.category.name AS categoryName
+            from Game g
+            """)
+    List<GameRepresentation2> finAllGames2();
 }

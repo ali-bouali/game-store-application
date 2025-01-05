@@ -178,4 +178,12 @@ public class GameService {
     }
 
 
+    // 1- class (GameRepresentation1) (id, title, platforms)
+    // 2- call the game repository and fetch all the games (paged)
+    // 3- map the result (loop over the result from the DB, do the mapping, collect, return the result)
+
+    public List<GameRepresentation1> getGamesWithRep1() {
+        return gameRepository.findAllGames();
+    }
+
 }
