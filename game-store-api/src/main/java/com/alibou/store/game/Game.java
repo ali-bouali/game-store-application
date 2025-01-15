@@ -3,11 +3,15 @@ package com.alibou.store.game;
 import com.alibou.store.category.Category;
 import com.alibou.store.comment.Comment;
 import com.alibou.store.common.BaseEntity;
+import com.alibou.store.platform.Console;
+import com.alibou.store.platform.Platform;
 import com.alibou.store.whishlist.WishList;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -17,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
@@ -24,12 +29,14 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@SuperBuilder
 @Entity
 public class Game extends BaseEntity {
 
+    @Column(nullable = false, unique = true)
     private String title;
-    @Enumerated(EnumType.STRING)
-    private SupportedPlatforms supportedPlatforms;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Platform> platforms;
     private String coverPicture;
     @ManyToOne
     @JoinColumn(name = "category_id")

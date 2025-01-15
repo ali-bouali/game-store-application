@@ -4,4 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface GameRepository extends JpaRepository<Game, String>, JpaSpecificationExecutor<Game> {
+
+    boolean existsByTitle(String title);
 }

@@ -1,7 +1,7 @@
 package com.alibou.store.user;
 
 import com.alibou.store.common.BaseEntity;
-import com.alibou.store.gamerequest.GameRequest;
+import com.alibou.store.gamerequest.GameRequestEntity;
 import com.alibou.store.notification.Notification;
 import com.alibou.store.whishlist.WishList;
 import jakarta.persistence.Entity;
@@ -33,5 +33,5 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Notification> notifications;
     @OneToMany(mappedBy = "user")
-    private List<GameRequest> gameRequests;
+    private List<GameRequestEntity> gameRequests;
 }
