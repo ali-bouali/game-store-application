@@ -16,7 +16,8 @@ import java.util.Set;
 public class GameResponse {
 
     private String id;
-    private String name;
+    // I've changed it to title to be more consistent
+    private String title;
     private Set<String> platforms;
     private String imageUrl; // the CDN url
 }
