@@ -3,6 +3,8 @@ package com.alibou.store.game;
 import com.alibou.store.category.Category;
 import org.springframework.stereotype.Service;
 
+import java.util.stream.Collectors;
+
 @Service
 public class GameMapper {
     public Game toGame(GameRequest gameRequest) {
@@ -13,6 +15,21 @@ public class GameMapper {
                                 .id(gameRequest.categoryId())
                                 .build()
                 )
+                .build();
+    }
+
+    // add the toGameResponse method to map the Game entity to a GameResponse class
+    public GameResponse toGameResponse(Game game) {
+        return GameResponse.builder()
+                .id(game.getId())
+                .title(game.getTitle())
+                .platforms(
+                        game
+                                .getPlatforms()
+                                .stream()
+                                .map(p -> p.getConsole().name())
+                                .collect(Collectors.toSet()))
+                .imageUrl(game.getCoverPicture())
                 .build();
     }
 }
