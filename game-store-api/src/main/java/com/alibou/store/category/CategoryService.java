@@ -67,7 +67,7 @@ public class CategoryService {
         );
     }
 
-    public CategoryResponse findById(final String id) {
+    public CategoryResponseFull findById(final String id) {
 
         Category category = categoryRepository.findById(id)
                 .orElseThrow( () -> {
@@ -75,7 +75,7 @@ public class CategoryService {
                     return new EntityNotFoundException("The category with id " + id + " does not exist.");
                 });
 
-        return categoryMapper.toCategoryResponse(category);
+        return categoryMapper.toCategoryResponseFull(category);
     }
 
     public CategoryResponse findByName(
