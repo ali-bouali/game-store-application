@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -65,7 +66,6 @@ public class CategoryService {
         categoryRepository.save(updatedCategory);
     }
 
-    @Transactional
     public void deleteCategory(String categoryId, boolean confirm) {
         long gamesCount = gameRepository.countByCategoryId(categoryId);
 
