@@ -3,10 +3,13 @@ package com.alibou.store.game;
 import com.alibou.store.category.CategoryRepository;
 import com.alibou.store.comment.CommentRepository;
 import com.alibou.store.common.PageResponse;
+import com.alibou.store.file.FileStorageService;
 import com.alibou.store.platform.Console;
 import com.alibou.store.platform.Platform;
 import com.alibou.store.platform.PlatformRepository;
+import com.alibou.store.whishlist.WishList;
 import com.alibou.store.whishlist.WishListRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,7 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +38,7 @@ public class GameService {
     private final CommentRepository commentRepository;
     private final WishListRepository wishListRepository;
     private final GameMapper gameMapper;
+    private final FileStorageService fileStorageService;
 
     public String saveGame(final GameRequest gameRequest) {
 
@@ -115,7 +123,17 @@ public class GameService {
         gameRepository.save(game);
     }
 
-    public String uploadGameImage(MultipartFile file, String gameId) {return null;}
+    // Todo upload just for now on the system and not the s3
+
+    public void uploadGameImage(final MultipartFile file, final String gameId) {
+        final Game game = gameRepository.findById(gameId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(format("The game with ID:: %s was not found", gameId))
+                );
+        final String savedFile = fileStorageService.saveFile(file, gameId, "games");
+        game.setCoverPicture(savedFile);
+        gameRepository.save(game);
+    }
 
     public PageResponse<GameResponse> findAllGames(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -153,16 +171,30 @@ public class GameService {
             System.out.println("The current game has wishlist: " + wishListCount);
         }
 
-        if (warnings.size() > 0 && !confirm) {
+        if (!warnings.isEmpty() && !confirm) {
             // todo add a custom exp
-            throw new RuntimeException("One or more warnings");
+            throw new GameException("One or more warnings");
         }
 
         gameRepository.deleteById(gameId);
 
         // todo I would like you to show me how you would remove the game from the wishlists
+        // Get the wishlists by game id
+        // List<WishList> wishLists = wishListRepository.findAllByGamesId(gameId);
+        // for each list delete the game
+//        wishLists.forEach(wishlist -> {
+//            List<Game> games = wishlist.getGames()
+//                    .stream()
+//                    .filter(game -> !Objects.equals(game.getId(), gameId))
+//                    .toList();
+//            wishlist.setGames(games);
+//            wishListRepository.save(wishlist);
+//        });
 
-
+        // Delete the comments for that game
+        commentRepository.deleteByGameId(gameId);
+        // Or we can just execute the native query
+        wishListRepository.deleteGameInWishlists(gameId);
     }
 
 }
