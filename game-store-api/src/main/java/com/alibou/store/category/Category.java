@@ -23,6 +23,6 @@ public class Category extends BaseEntity {
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", orphanRemoval = true)
     private List<Game> games;
 }
