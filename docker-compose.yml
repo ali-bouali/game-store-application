@@ -10,8 +10,13 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - "5432:5432"
+    networks:
+      - spring-gsa
 
+networks:
+  spring-gsa:
+    driver: bridge
 volumes:
   postgres:
     driver: local
