@@ -3,14 +3,11 @@ package com.alibou.store.game;
 import com.alibou.store.category.Category;
 import com.alibou.store.comment.Comment;
 import com.alibou.store.common.BaseEntity;
-import com.alibou.store.platform.Console;
 import com.alibou.store.platform.Platform;
 import com.alibou.store.whishlist.WishList;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -35,19 +32,19 @@ public class Game extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String title;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private List<Platform> platforms;
     private String coverPicture;
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-    @OneToMany(mappedBy = "game")
+    @OneToMany(mappedBy = "game", orphanRemoval = true)
     private List<Comment> comments;
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "game_wishlist",
             joinColumns = {
-                   @JoinColumn(name = "game_id")
+                    @JoinColumn(name = "game_id")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "wishlist_id")
@@ -63,5 +60,15 @@ public class Game extends BaseEntity {
     public void removeWishlist(WishList wishlist) {
         this.wishlists.remove(wishlist);
         wishlist.getGames().remove(this);
+    }
+
+    public void addPlatform(Platform platform) {
+        this.platforms.add(platform);
+        platform.getGames().add(this);
+    }
+
+    public void removePlatform(Platform platform) {
+        this.platforms.remove(platform);
+        platform.getGames().remove(this);
     }
 }
