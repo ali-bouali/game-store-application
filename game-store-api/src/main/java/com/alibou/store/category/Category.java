@@ -2,7 +2,6 @@ package com.alibou.store.category;
 
 import com.alibou.store.common.BaseEntity;
 import com.alibou.store.game.Game;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -24,6 +23,6 @@ public class Category extends BaseEntity {
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", orphanRemoval = true)
     private List<Game> games;
 }

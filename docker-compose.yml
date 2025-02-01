@@ -1,6 +1,6 @@
 services:
   postgres:
-    container_name: postgres-gs-app
+    container_name: postgres-gs-app2
     image: postgres
     environment:
       POSTGRES_USER: username
