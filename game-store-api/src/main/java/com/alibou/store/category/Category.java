@@ -25,16 +25,16 @@ import java.util.List;
         ORDER BY cat.name asc
     """
 )
-@NamedEntityGraph(
-    name = "graph.category.games",
-    attributeNodes = @NamedAttributeNode("games")
-)
 public class Category extends BaseEntity {
 
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(
+        mappedBy = "category",
+        cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+        orphanRemoval = true
+    )
     private List<Game> games;
 
     public void addGame(Game game) {

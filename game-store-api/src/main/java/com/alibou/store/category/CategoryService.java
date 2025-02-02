@@ -1,13 +1,11 @@
 package com.alibou.store.category;
 
-
 import com.alibou.store.category.dto.CategoryRequest;
 import com.alibou.store.category.dto.CategoryResponse;
-import com.alibou.store.category.dto.CategoryResponseFull;
 import com.alibou.store.common.PageResponse;
+import com.alibou.store.game.GameRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -24,6 +21,7 @@ import java.util.Objects;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final GameRepository gameRepository;
     private final CategoryMapper categoryMapper;
 
 
@@ -47,51 +45,21 @@ public class CategoryService {
         );
     }
 
-    public PageResponse<CategoryResponseFull> findAllWithGames(int pageNumber, int pageSize) {
 
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.ASC, "name"));
-
-        Page<Category> categories = categoryRepository.findAllWithGames(pageRequest);
-        List<CategoryResponseFull> categoryResponseList = categories
-                .map(categoryMapper::toCategoryResponseFull)
-                .toList();
-
-        return new PageResponse<>(
-            categoryResponseList,
-            categories.getNumber(),
-            categories.getSize(),
-            categories.getTotalElements(),
-            categories.getTotalPages(),
-            categories.isFirst(),
-            categories.isLast()
-        );
-    }
-
-    public CategoryResponseFull findById(final String id) {
+    public CategoryResponse findById(final String id) {
 
         Category category = categoryRepository.findById(id)
                 .orElseThrow( () -> {
-                    log.warn("Category with id {} not found", id);
                     return new EntityNotFoundException("The category with id " + id + " does not exist.");
                 });
 
-        return categoryMapper.toCategoryResponseFull(category);
-    }
-
-    public CategoryResponse findByName(
-            @NotBlank(message = "The name cannot be null or empty") String catName) {
-
-        Category category = categoryRepository.findByName(catName);
-        if (Objects.isNull(category)) {
-            throw new EntityNotFoundException("The category with name " + catName + " does not exist");
-        }
         return categoryMapper.toCategoryResponse(category);
     }
 
-    public String create(final CategoryRequest categoryRequest) {
+
+    public String saveCategory(final CategoryRequest categoryRequest) {
 
         if (categoryRepository.existByName(categoryRequest.getName())) {
-            log.warn("The category with name {} already exists.", categoryRequest.getName());
             throw new EntityExistsException("The category with name " + categoryRequest.getName() + " already exists.");
         }
 
@@ -100,7 +68,7 @@ public class CategoryService {
         return categoryRepository.save(categoryToPersist).getId();
     }
 
-    public String update(final String id, final CategoryRequest categoryRequest) {
+    public String updateCategory(final String id, final CategoryRequest categoryRequest) {
 
         Category categoryToUpdated = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("The category with id " + id + " does not exist."));
@@ -108,7 +76,6 @@ public class CategoryService {
         if (!categoryRequest.getName().equals(categoryToUpdated.getName())
             && categoryRepository.existByName(categoryRequest.getName())
         ) {
-            log.warn("The category with name {} already exists.", categoryRequest.getName());
             throw new EntityExistsException("The category with name " + categoryRequest.getName() + " already exists.");
         }
 
@@ -118,7 +85,19 @@ public class CategoryService {
         return categoryRepository.save(categoryToUpdated).getId();
     }
 
-    public void deleteById(final String id) {
-        categoryRepository.deleteById(id);
+    public void deleteById(final String categoryId, boolean isConfirm) {
+
+        long gameCount = 0;
+
+        if (!isConfirm) {
+            gameCount = gameRepository.countByCategoryId(categoryId);
+         }
+
+        if (gameCount > 0) {
+            throw new CategoryException("Category has " + gameCount + " game");
+        }
+
+        categoryRepository.deleteById(categoryId);
+
     }
 }
