@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -85,6 +86,7 @@ public class CategoryService {
         return categoryRepository.save(categoryToUpdated).getId();
     }
 
+    @Transactional
     public void deleteById(final String categoryId, boolean isConfirm) {
 
         long gameCount = 0;
@@ -97,6 +99,18 @@ public class CategoryService {
             throw new CategoryException("Category has " + gameCount + " game");
         }
 
+        /**
+         * For deleting the category:
+         * 1 - I generally start by creating the database script and adding Flyway for migration.
+
+         * 2. When creating the foreign key in the Game table, I'll add ON DELETE CASCADE,
+         *    so the database will be responsible for deleting the child records when the parent is deleted.
+
+         * ALTER TABLE Game
+         * ADD CONSTRAINT FK_GAME_CATEGORY_ID
+         * FOREIGN KEY (CATEGORY_ID) REFERENCES Category(CATEGORY_ID)
+         * ON DELETE CASCADE;
+         */
         categoryRepository.deleteById(categoryId);
 
     }
